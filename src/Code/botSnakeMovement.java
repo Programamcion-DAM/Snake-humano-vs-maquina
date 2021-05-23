@@ -89,6 +89,14 @@ public class botSnakeMovement extends PApplet{
         //Ya sabiendo a que nodo iremos, ahora le añadimos el movimeinto en sí.
         lastMove.set((provisionalNodo % filas)-vHead.x, (int) (provisionalNodo/filas) - vHead.y);
         
+        //Esto significa que no puede acceder a la manzana y por tanto la mandamos por el camino mas largo
+        if(min == Integer.MAX_VALUE){
+            provisionalNodo = getLongestRoad();
+        }
+        else{
+            counter = 0;
+        }
+        
         //Aqui marcamos cual será la nueva direccion para que nunca pueda ir en contraria
         if(lastMove.x == 1){
             direction = "derecha";
@@ -212,6 +220,58 @@ public class botSnakeMovement extends PApplet{
             }
         }
         return graph;
+    }
+    
+    private int getLongestRoad(){
+        counter++;
+        
+        //Creamos un mapa booleano donde la cola sea true
+        boolean mapWithTail[][] = new boolean[mapb.length][mapb.length];
+        
+        //Igualamos el mapa y le cambiamos la cola 
+        for(int i = 0;i<mapb.length;i++){
+            for(int j = 0;j<mapb.length;j++){
+                mapWithTail[i][j] = mapb[i][j];
+            }
+        }
+        int x = tailNodo % filas;
+        int y = tailNodo / filas;
+        mapWithTail[y][x] = true;
+        
+        int[] distWithoutTail = dij.dijkstra(grafo, headNodo);
+        int[] distWithTail = dij.dijkstra(createGraph(mapWithTail), headNodo);
+        
+        //Significará que no puede acceder a su cola
+        if(distWithTail[tailNodo] == Integer.MAX_VALUE){
+            if(counter == 1){
+                int nodoDestination = getFarestNodo(distWithoutTail);
+                LongRoad longRoad = new LongRoad(mapb, headNodo, nodoDestination);
+                longestRoad = longRoad.getLongestRoad();
+            }
+        }
+        //Si puede acceder a su cola y por ello lo vamos a enviar ahí haciendo el camino mas largo.
+        else{
+            if(counter == 1){
+                LongRoad longRoad = new LongRoad(mapb, headNodo, tailNodo);
+                longestRoad = longRoad.getLongestRoad();
+            }
+        }
+        
+        return longestRoad[counter];
+    }
+    
+    private int getFarestNodo(int dist[]){
+        int nodo = 0;
+        int min = 0;
+        for(int i = 0;i < dist.length;i++){
+            if(dist[i] != Integer.MAX_VALUE){
+                if(dist[i] >= min){
+                    nodo = i;
+                    min = dist[i];
+                }
+            }
+        }
+        return nodo;
     }
     
     private int transformVectorIntoNodo(PVector p){
