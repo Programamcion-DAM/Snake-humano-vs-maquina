@@ -13,6 +13,7 @@ public class Main extends PApplet{
     int bs = 20;
     
     boolean map[][] = new boolean[filas][columnas];
+    Apple apple = new Apple();
     
     boolean greenBox = true;
     boolean purpleBox = true;
@@ -25,12 +26,28 @@ public class Main extends PApplet{
     @Override
     public void setup(){
         frameRate(25);
+        initGame();
     }
     
     @Override
     public void draw(){
         background(25);
         drawMap();
+        drawApple();
+    }
+    
+    void initGame(){
+        updateMap();
+        apple.spawn(map);
+    }
+    
+    void updateMap(){
+        //Asignamos todo el mapa a true primero
+        for(int i = 0;i<filas;i++){
+            for(int j = 0;j<columnas;j++){
+                map[i][j] = true;
+            }
+        }
     }
     
     void drawMap(){
@@ -53,6 +70,11 @@ public class Main extends PApplet{
             fill(250,50,50);
             rect(270,510,210,20);
         }
+    }
+    
+    void drawApple(){
+        fill(215,0,75);
+        rect(apple.position.x * bs, apple.position.y * bs, bs, bs);
     }
     
     @Override
