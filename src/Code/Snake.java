@@ -14,7 +14,7 @@ public class Snake {
     //Son las dos posiciones donde empieza
     private final PVector initialPosition1;
     private final PVector initialPosition2;
-    
+    private botSnakeMovement movement = new botSnakeMovement();
     public int r,g,b;
     
     public Snake(int r,int g,int b, PVector initial1, PVector initial2){
@@ -42,7 +42,7 @@ public class Snake {
         PVector headSnake = new PVector(posX.get(0),posY.get(0));
         PVector tailSnake = new PVector(posX.get(posX.size()-1),posY.get(posY.size()-1));
         
-        PVector nextMove = new PVector(0,-1);
+        PVector nextMove = movement.getNewPosition(map, headSnake, tailSnake, apple, posX.size());
         
         posX.add(0,posX.get(0) + (int)nextMove.x);
         posY.add(0,posY.get(0) + (int)nextMove.y);
