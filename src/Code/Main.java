@@ -53,6 +53,11 @@ public class Main extends PApplet{
                 map[i][j] = true;
             }
         }
+        
+        //Asignamos las posiciones de la serpiente humana como ocupadas
+        for(int i = 1; i < humanSnake.posX.size();i++){
+            map[humanSnake.posY.get(i)][humanSnake.posX.get(i)] = false;
+        }
     }
     
     void drawMap(){
@@ -87,6 +92,8 @@ public class Main extends PApplet{
         if(humanSnake.alive == true){
             moveHumanSnake();
             drawSnake(humanSnake);
+            detectBorder(humanSnake);
+            snakeCrash(humanSnake);
         }
     }
     
@@ -111,6 +118,30 @@ public class Main extends PApplet{
         }
     }
     
+    void detectBorder(Snake s){
+        //Detecta si se sale del mapa la cabeza de la serpiente
+        if(s.posX.get(0) < 0 || s.posX.get(0) > (columnas-1) || s.posY.get(0) < 0 || s.posY.get(0) > (filas-1)){
+            s.restart();
+        }
+    }
+    
+    void snakeCrash(Snake s1){
+        //Comprueba si se choca consigo misma, para ello recorre todas sus posiciones comprobando que no sean iguales a las de su cabeza
+        if(s1.alive == true){
+            for(int i = 2;i<s1.posX.size();i++){
+                if(s1.posX.get(0) == s1.posX.get(i) && s1.posY.get(0) == s1.posY.get(i)){
+                    s1.restart();
+                }
+            }
+        }
+    }
+    
+    void deleteSanke(Snake s){
+        s.posX.clear();
+        s.posY.clear();
+        s.alive = false;
+    }
+            
     void restartGame(){
         //Comienza la partida de 0
         humanSnake.restart();
@@ -150,6 +181,13 @@ public class Main extends PApplet{
         //Comprueba si esta en el cuadrado verde el click. Si es así cambiara el estado del snake muerto-vivo
         if(mouseX >= 30 && mouseX <= 240 && mouseY >= 510 && mouseY <= 530){
             greenBox = !greenBox;
+            
+            if(humanSnake.alive == true){
+                deleteSanke(humanSnake);
+            }
+            else{
+                humanSnake.restart();
+            }
         }
         //Comprueba si esta en el cuadrado morado el click.
         if(mouseX >= 270 && mouseX <= 480 && mouseY >= 510 && mouseY <= 530){
