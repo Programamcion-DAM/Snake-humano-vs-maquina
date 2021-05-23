@@ -1,29 +1,26 @@
 
 package Code;
 
-import com.sun.org.apache.xml.internal.security.transforms.implementations.TransformXPointer;
 import processing.core.*;
 
 public class botSnakeMovement extends PApplet{
     final int filas = 25;
+    Dijkstra dij = new Dijkstra();
     int headNodo;
     int tailNodo;
     int snakeLength;
     boolean mapb[][];
-    int counter;
+    int contador = 0;
     int[] longestRoad;
     int[][] grafo;
     PVector vHead = new PVector(0,0);
     PVector lastMove = new PVector(0,0);
     String direction = "";
     
-    Dijkstra dij = new Dijkstra();
-    
-    
     public PVector getNewPosition(boolean map[][], PVector snakeHead,PVector snakeTail, PVector apple, int snakeLengh){
         this.snakeLength = snakeLengh;
-        this.mapb = map;
-        this.grafo = createGraph(map);
+        mapb = map;
+        grafo = createGraph(map);
         vHead.set(snakeHead);
         int appleNodo = transformVectorIntoNodo(apple);
         headNodo = transformVectorIntoNodo(snakeHead);
@@ -85,17 +82,16 @@ public class botSnakeMovement extends PApplet{
 
         }
         
-        
-        //Ya sabiendo a que nodo iremos, ahora le añadimos el movimeinto en sí.
-        lastMove.set((provisionalNodo % filas)-vHead.x, (int) (provisionalNodo/filas) - vHead.y);
-        
         //Esto significa que no puede acceder a la manzana y por tanto la mandamos por el camino mas largo
         if(min == Integer.MAX_VALUE){
             provisionalNodo = getLongestRoad();
         }
         else{
-            counter = 0;
+            contador = 0;
         }
+        
+        //Ya sabiendo a que nodo iremos, ahora le añadimos el movimeinto en sí.
+        lastMove.set((provisionalNodo % filas)-vHead.x, (int) (provisionalNodo/filas) - vHead.y);
         
         //Aqui marcamos cual será la nueva direccion para que nunca pueda ir en contraria
         if(lastMove.x == 1){
@@ -183,11 +179,12 @@ public class botSnakeMovement extends PApplet{
     
     public int [][] createGraph(boolean[][]matriz){
         int matrizSize = matriz.length;
-        int graph[][] = new int[matrizSize][matrizSize];
+        int totalSize = matrizSize * matrizSize;
+        int[][] graph = new int[totalSize][totalSize];
         
         //Inicializamos la matriz con todo a 0, es decir, que nada puede pasar de momento
-        for(int i = 0;i<matrizSize;i++){
-            for(int j = 0;j<matrizSize;j++){
+        for (int i = 0; i < totalSize; i++) {
+            for (int j = 0; j < totalSize; j++) {
                 graph[i][j] = 0;
             }
         }
@@ -219,16 +216,15 @@ public class botSnakeMovement extends PApplet{
                 }
             }
         }
+        
         return graph;
     }
     
     private int getLongestRoad(){
-        counter++;
-        
+        contador++;
+
         //Creamos un mapa booleano donde la cola sea true
-        boolean mapWithTail[][] = new boolean[mapb.length][mapb.length];
-        
-        //Igualamos el mapa y le cambiamos la cola 
+        boolean[][] mapWithTail = new boolean[mapb.length][mapb.length];
         for(int i = 0;i<mapb.length;i++){
             for(int j = 0;j<mapb.length;j++){
                 mapWithTail[i][j] = mapb[i][j];
@@ -237,35 +233,34 @@ public class botSnakeMovement extends PApplet{
         int x = tailNodo % filas;
         int y = tailNodo / filas;
         mapWithTail[y][x] = true;
-        
+
         int[] distWithoutTail = dij.dijkstra(grafo, headNodo);
         int[] distWithTail = dij.dijkstra(createGraph(mapWithTail), headNodo);
-        
-        //Significará que no puede acceder a su cola
-        if(distWithTail[tailNodo] == Integer.MAX_VALUE){
-            if(counter == 1){
+
+        //Significara que no puede acceder a su cola
+        if (distWithTail[tailNodo] == Integer.MAX_VALUE) {
+            if (contador == 1) {
                 int nodoDestination = getFarestNodo(distWithoutTail);
                 LongRoad longRoad = new LongRoad(mapb, headNodo, nodoDestination);
                 longestRoad = longRoad.getLongestRoad();
             }
-        }
-        //Si puede acceder a su cola y por ello lo vamos a enviar ahí haciendo el camino mas largo.
-        else{
-            if(counter == 1){
+        } //Si puede acceder a su cola y por ello lo vamos a enviar ahí haciendo el camino mas largo.
+        else {
+            if (contador == 1) {
                 LongRoad longRoad = new LongRoad(mapb, headNodo, tailNodo);
                 longestRoad = longRoad.getLongestRoad();
             }
         }
-        
-        return longestRoad[counter];
+
+        return longestRoad[contador];
     }
     
     private int getFarestNodo(int dist[]){
         int nodo = 0;
         int min = 0;
-        for(int i = 0;i < dist.length;i++){
-            if(dist[i] != Integer.MAX_VALUE){
-                if(dist[i] >= min){
+        for (int i = 0; i < dist.length; i++) {
+            if (dist[i] != Integer.MAX_VALUE) {
+                if (dist[i] >= min) {
                     nodo = i;
                     min = dist[i];
                 }
@@ -278,8 +273,10 @@ public class botSnakeMovement extends PApplet{
         int nodo = (int) (p.x + p.y * filas);
         return nodo;
     }
-    private PVector transformIntoVector(int nodo){
-        PVector v = new PVector((int)nodo%filas,(int)nodo/filas);
-        return v;
+    private PVector transformIntoVector(int nodo) {
+        int y = (int) nodo / filas;
+        int x = nodo % filas;
+
+        return new PVector(x, y);
     }
 }

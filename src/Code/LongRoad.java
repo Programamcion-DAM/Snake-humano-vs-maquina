@@ -4,7 +4,7 @@ package Code;
 import java.util.ArrayList;
 
 public class LongRoad {
-    private boolean[][] mapb;
+private boolean[][] mapb;
     private int nodoOrigen;
     private int nodoDestino;
     private final int filas = 25;

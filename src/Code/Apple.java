@@ -3,6 +3,7 @@ package Code;
 import processing.core.*;
 
 public class Apple extends PApplet{
+    
     public PVector position = new PVector(0,0);
     
     public Apple(){
