@@ -13,10 +13,13 @@ public class Main extends PApplet{
     int bs = 20;
     
     boolean map[][] = new boolean[filas][columnas];
-    Apple apple = new Apple();
+    PVector direction = new PVector(1,0);
     
     boolean greenBox = true;
     boolean purpleBox = true;
+    
+    Apple apple = new Apple();
+    Snake humanSnake = new Snake(100,200,100,new PVector(2,2), new PVector(2,1));
     
     @Override
     public void settings(){
@@ -34,6 +37,8 @@ public class Main extends PApplet{
         background(25);
         drawMap();
         drawApple();
+        
+        playHumanSnake();
     }
     
     void initGame(){
@@ -75,6 +80,69 @@ public class Main extends PApplet{
     void drawApple(){
         fill(215,0,75);
         rect(apple.position.x * bs, apple.position.y * bs, bs, bs);
+    }
+    
+    void playHumanSnake(){
+        //Si esta viva que juegue
+        if(humanSnake.alive == true){
+            moveHumanSnake();
+            drawSnake(humanSnake);
+        }
+    }
+    
+    void moveHumanSnake(){
+        humanSnake.mover((int)direction.x, (int)direction.y);
+        eat(humanSnake);
+    }
+    
+    void eat(Snake snake){
+        //Comprueba si la cabeza de la serpiente (es decir, la posicion 0) es la misma posicion que la de la manzana
+        if(snake.posX.get(0) == apple.position.x && snake.posY.get(0) == apple.position.y){
+            apple.spawn(map);
+            snake.comer();
+        }
+    }
+    
+    void drawSnake(Snake snake){
+        //Rellenamos con el color asignado y despues recorremos todas sus posiciones dibujando en pantalla
+        fill(snake.r,snake.g,snake.b);
+        for(int i = 0;i<snake.posX.size();i++){
+            rect(snake.posX.get(i) * bs, snake.posY.get(i) * bs,bs,bs);
+        }
+    }
+    
+    void restartGame(){
+        //Comienza la partida de 0
+        humanSnake.restart();
+        initGame();
+    }
+    
+    @Override
+    public void keyPressed(){
+        if(key == 'w' || keyCode == UP){
+            if(direction.y != 1){
+                direction.set(0,-1);
+            }
+        }
+        if(key == 's' || keyCode == DOWN){
+            if(direction.y != -1){
+                direction.set(0,1);
+            }
+        }
+        if(key == 'a' || keyCode == LEFT){
+            if(direction.x != 1){
+                direction.set(-1,0);
+            }
+        }
+        if(key == 'd' || keyCode == RIGHT){
+            if(direction.x != -1){
+                direction.set(1,0);
+            }
+        }
+        //Reinicia el juego
+        if(key == ' '){
+            restartGame();
+        }
     }
     
     @Override
